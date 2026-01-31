@@ -3,6 +3,15 @@
  */
 const config = require('../config');
 
+// Helper function to generate UUID
+function generateUUID() {
+  if (require('crypto').randomUUID) {
+    return require('crypto').randomUUID();
+  }
+  // Fallback to uuid package if crypto.randomUUID is not available
+  return require('uuid').v4();
+}
+
 class SquareProvider {
   constructor() {
     this.client = null;
@@ -39,7 +48,6 @@ class SquareProvider {
     this.initialize();
 
     const squareConfig = config.getSquareConfig();
-    const { v4: uuidv4 } = require('crypto').randomUUID ? { v4: () => require('crypto').randomUUID() } : require('uuid');
 
     const body = {
       sourceId,
@@ -48,7 +56,7 @@ class SquareProvider {
         currency
       },
       locationId: squareConfig.locationId,
-      idempotencyKey: idempotencyKey || uuidv4()
+      idempotencyKey: idempotencyKey || generateUUID()
     };
 
     const response = await this.paymentsApi.createPayment(body);
@@ -76,15 +84,13 @@ class SquareProvider {
   async refundPayment(paymentId, amount, currency = 'USD', idempotencyKey = null) {
     this.initialize();
 
-    const { v4: uuidv4 } = require('crypto').randomUUID ? { v4: () => require('crypto').randomUUID() } : require('uuid');
-
     const body = {
       paymentId,
       amountMoney: {
         amount: Math.round(amount * 100),
         currency
       },
-      idempotencyKey: idempotencyKey || uuidv4()
+      idempotencyKey: idempotencyKey || generateUUID()
     };
 
     const response = await this.refundsApi.refundPayment(body);

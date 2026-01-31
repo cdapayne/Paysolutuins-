@@ -4,7 +4,7 @@
  */
 
 require('dotenv').config();
-const PaySolutions = require('./index');
+const PaySolutions = require('../index');
 
 async function example() {
     // Initialize PaySolutions
